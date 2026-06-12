@@ -31,6 +31,7 @@ export default function Dashboard() {
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(6);
   const [totalCount, setTotalCount] = useState(0);
+  const [view, setView] = useState<"create" | "myTasks">("myTasks");
   const [loading, setLoading] = useState(false);
   const [listLoading, setListLoading] = useState(false);
   const [completingId, setCompletingId] = useState<string | null>(null);
@@ -84,6 +85,11 @@ export default function Dashboard() {
       return;
     }
 
+    if (!description.trim()) {
+      setFormError("Task description is required");
+      return;
+    }
+
     setLoading(true);
     try {
       const payload: any = { title, description, status, priority };
@@ -92,6 +98,7 @@ export default function Dashboard() {
       await api.post("/tasks", payload);
       setSuccessMessage("Task created successfully!");
       resetForm();
+      setView("myTasks");
       setTimeout(() => setSuccessMessage(""), 3000);
       await fetchTasks();
     } catch (error: any) {
@@ -110,6 +117,11 @@ export default function Dashboard() {
       return;
     }
 
+    if (!description.trim()) {
+      setFormError("Task description is required");
+      return;
+    }
+
     setLoading(true);
     try {
       const payload: any = { title, description, status, priority };
@@ -118,6 +130,7 @@ export default function Dashboard() {
       await api.patch(`/tasks/${editingTaskId}`, payload);
       setSuccessMessage("Task updated successfully!");
       resetForm();
+      setView("myTasks");
       setTimeout(() => setSuccessMessage(""), 3000);
       await fetchTasks();
     } catch (error: any) {
@@ -173,7 +186,13 @@ export default function Dashboard() {
       priority: task.priority,
       dueDate: dueDateValue,
     });
+    setView("create");
     window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  const goToCreate = () => {
+    if (editingTaskId) resetForm();
+    setView("create");
   };
 
   const handleLogout = () => {
@@ -226,6 +245,28 @@ export default function Dashboard() {
               </p>
             </div>
             <div className="flex items-center gap-3">
+              <nav className="flex items-center gap-1 rounded-xl bg-slate-100 dark:bg-slate-800 p-1">
+                <button
+                  onClick={goToCreate}
+                  className={`px-4 py-2 rounded-lg text-sm font-medium transition ${
+                    view === "create"
+                      ? "bg-white dark:bg-slate-700 text-indigo-600 dark:text-white shadow-sm"
+                      : "text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white"
+                  }`}
+                >
+                  Create Task
+                </button>
+                <button
+                  onClick={() => setView("myTasks")}
+                  className={`px-4 py-2 rounded-lg text-sm font-medium transition ${
+                    view === "myTasks"
+                      ? "bg-white dark:bg-slate-700 text-indigo-600 dark:text-white shadow-sm"
+                      : "text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white"
+                  }`}
+                >
+                  My Tasks
+                </button>
+              </nav>
               <button
                 onClick={handleLogout}
                 className="px-4 py-2 rounded-xl text-slate-700 dark:text-slate-300 border border-slate-300 dark:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-800 transition font-medium text-sm"
@@ -237,7 +278,8 @@ export default function Dashboard() {
         </header>
 
         <div className="max-w-7xl mx-auto px-6 py-8">
-          {/* Create/Edit Task Section */}
+          {view === "create" && (
+          /* Create/Edit Task Section */
           <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-3xl shadow-sm p-8 mb-8 transition-colors">
             <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-6">
               {editingTaskId ? "Edit Task" : "Create New Task"}
@@ -271,7 +313,7 @@ export default function Dashboard() {
 
               <label className="block">
                 <span className="text-sm font-medium text-slate-700 dark:text-slate-300 dark:text-slate-300 dark:text-slate-300">
-                  Description
+                  Description *
                 </span>
                 <textarea
                   value={description}
@@ -347,6 +389,15 @@ export default function Dashboard() {
               </div>
             </div>
           </div>
+          )}
+
+          {view === "myTasks" && (
+          <>
+          {successMessage && (
+            <div className="rounded-xl bg-green-50 dark:bg-green-900/30 border border-green-200 dark:border-green-800 p-3 text-sm text-green-700 dark:text-green-200 mb-6">
+              {successMessage}
+            </div>
+          )}
 
           {/* Search & Filter Section */}
           <div className="bg-white dark:bg-slate-800 border border-slate-200 rounded-3xl shadow-sm p-8 mb-8">
@@ -574,6 +625,8 @@ export default function Dashboard() {
               </button>
             </div>
           </div>
+          </>
+          )}
         </div>
       </div>
     </ProtectedRoute>
