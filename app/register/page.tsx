@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { api } from "@/services/api";
+import Spinner from "@/components/Spinner";
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -13,6 +14,7 @@ export default function RegisterPage() {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
   const [loading, setLoading] = useState(false);
 
   const handleRegister = async () => {
@@ -42,13 +44,12 @@ export default function RegisterPage() {
       });
 
       setError("");
-      alert("Registration successful! Redirecting to login...");
-      router.push("/login");
+      setSuccess("Registration successful! Redirecting to login...");
+      setTimeout(() => router.push("/login"), 1500);
     } catch (err: any) {
       const errorMessage = err.response?.data?.message || err.message || "Registration failed. Please try again.";
       setError(errorMessage);
       console.error("Registration error:", err);
-    } finally {
       setLoading(false);
     }
   };
@@ -139,12 +140,20 @@ export default function RegisterPage() {
               </div>
             )}
 
+            {success && (
+              <div className="flex items-center gap-2 rounded-xl bg-emerald-50 border border-emerald-200 p-3 text-sm text-emerald-700">
+                <Spinner className="w-4 h-4" />
+                {success}
+              </div>
+            )}
+
             <button
               onClick={handleRegister}
               disabled={loading}
-              className="w-full rounded-2xl bg-emerald-600 px-4 py-3 text-sm font-semibold text-white shadow-lg shadow-emerald-500/10 transition hover:bg-emerald-700 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="flex w-full items-center justify-center gap-2 rounded-2xl bg-emerald-600 px-4 py-3 text-sm font-semibold text-white shadow-lg shadow-emerald-500/10 transition hover:bg-emerald-700 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {loading ? "Creating account..." : "Create Account"}
+              {loading && <Spinner />}
+              Create Account
             </button>
           </div>
 

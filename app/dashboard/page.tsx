@@ -5,6 +5,7 @@ import { api } from "@/services/api";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import { useAuthStore } from "@/store/authStore";
 import { useRouter } from "next/navigation";
+import Spinner from "@/components/Spinner";
 
 export default function Dashboard() {
   const router = useRouter();
@@ -17,6 +18,13 @@ export default function Dashboard() {
   const [priority, setPriority] = useState("Medium");
   const [dueDate, setDueDate] = useState("");
   const [editingTaskId, setEditingTaskId] = useState<string | null>(null);
+  const [editSnapshot, setEditSnapshot] = useState<{
+    title: string;
+    description: string;
+    status: string;
+    priority: string;
+    dueDate: string;
+  } | null>(null);
   const [search, setSearch] = useState("");
   const [filterStatus, setFilterStatus] = useState("");
   const [sortBy, setSortBy] = useState("");
@@ -24,14 +32,25 @@ export default function Dashboard() {
   const [pageSize, setPageSize] = useState(6);
   const [totalCount, setTotalCount] = useState(0);
   const [loading, setLoading] = useState(false);
-  const [isFetching, setIsFetching] = useState(false);
+  const [listLoading, setListLoading] = useState(false);
+  const [completingId, setCompletingId] = useState<string | null>(null);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
   const [formError, setFormError] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
 
   const totalPages = Math.ceil(totalCount / pageSize);
 
+  const isDirty =
+    !editSnapshot ||
+    title !== editSnapshot.title ||
+    description !== editSnapshot.description ||
+    status !== editSnapshot.status ||
+    priority !== editSnapshot.priority ||
+    dueDate !== editSnapshot.dueDate;
+
   const resetForm = () => {
     setEditingTaskId(null);
+    setEditSnapshot(null);
     setTitle("");
     setDescription("");
     setStatus("Pending");
@@ -41,7 +60,7 @@ export default function Dashboard() {
   };
 
   const fetchTasks = async () => {
-    setIsFetching(true);
+    setListLoading(true);
     try {
       const res = await api.get(
         `/tasks?page=${page}&pageSize=${pageSize}&search=${search}&status=${filterStatus}&sortBy=${sortBy}`,
@@ -53,7 +72,7 @@ export default function Dashboard() {
     } catch (error) {
       console.error(error);
     } finally {
-      setIsFetching(false);
+      setListLoading(false);
     }
   };
 
@@ -111,6 +130,7 @@ export default function Dashboard() {
   const deleteTask = async (id: string) => {
     if (!window.confirm("Are you sure you want to delete this task?")) return;
 
+    setDeletingId(id);
     try {
       await api.delete(`/tasks/${id}`);
       setSuccessMessage("Task deleted successfully!");
@@ -118,10 +138,13 @@ export default function Dashboard() {
       await fetchTasks();
     } catch (error) {
       console.error(error);
+    } finally {
+      setDeletingId(null);
     }
   };
 
   const markComplete = async (id: string) => {
+    setCompletingId(id);
     try {
       await api.patch(`/tasks/${id}`, { status: "Completed" });
       setSuccessMessage("Task marked complete!");
@@ -130,16 +153,26 @@ export default function Dashboard() {
     } catch (error) {
       console.error(error);
       setFormError("Failed to mark task complete");
+    } finally {
+      setCompletingId(null);
     }
   };
 
   const editTask = (task: any) => {
+    const dueDateValue = task.dueDate?.split("T")[0] || "";
     setEditingTaskId(task.id);
     setTitle(task.title);
     setDescription(task.description);
     setStatus(task.status);
     setPriority(task.priority);
-    setDueDate(task.dueDate?.split("T")[0] || "");
+    setDueDate(dueDateValue);
+    setEditSnapshot({
+      title: task.title,
+      description: task.description,
+      status: task.status,
+      priority: task.priority,
+      dueDate: dueDateValue,
+    });
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
@@ -181,25 +214,6 @@ export default function Dashboard() {
   return (
     <ProtectedRoute>
       <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800 transition-colors">
-        {/* Full Page Loader */}
-        {isFetching && (
-          <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50 backdrop-blur-sm">
-            <div className="bg-white dark:bg-slate-800 rounded-3xl shadow-2xl p-12 flex flex-col items-center gap-6 border border-slate-200 dark:border-slate-700">
-              <div className="relative w-16 h-16">
-                <div className="absolute inset-0 rounded-full border-4 border-slate-100 dark:border-slate-700"></div>
-                <div className="absolute inset-0 rounded-full border-4 border-transparent border-t-indigo-600 border-r-indigo-600 animate-spin"></div>
-              </div>
-              <div className="text-center">
-                <p className="text-slate-900 dark:text-white font-semibold text-lg">
-                  Loading tasks
-                </p>
-                <p className="text-slate-500 dark:text-slate-400 text-sm mt-1">
-                  Please wait a moment...
-                </p>
-              </div>
-            </div>
-          </div>
-        )}
         {/* Header */}
         <header className="border-b border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 shadow-sm transition-colors">
           <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
@@ -315,16 +329,11 @@ export default function Dashboard() {
               <div className="flex gap-3 pt-4">
                 <button
                   onClick={editingTaskId ? updateTask : createTask}
-                  disabled={loading}
-                  className="flex-1 rounded-2xl bg-indigo-600 px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-indigo-500/10 transition hover:bg-indigo-700 disabled:opacity-50"
+                  disabled={loading || (!!editingTaskId && !isDirty)}
+                  className="flex flex-1 items-center justify-center gap-2 rounded-2xl bg-indigo-600 px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-indigo-500/10 transition hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  {loading
-                    ? editingTaskId
-                      ? "Updating..."
-                      : "Creating..."
-                    : editingTaskId
-                      ? "Update Task"
-                      : "Create Task"}
+                  {loading && <Spinner />}
+                  {editingTaskId ? "Update Task" : "Create Task"}
                 </button>
 
                 {editingTaskId && (
@@ -403,12 +412,15 @@ export default function Dashboard() {
 
           {/* Tasks Section */}
           <div className="mb-8">
-            <h3 className="text-2xl font-bold text-slate-900 dark:text-white mb-6">
+            <h3 className="flex items-center gap-2 text-2xl font-bold text-slate-900 dark:text-white mb-6">
               My Tasks{" "}
               {tasks.length > 0 && (
                 <span className="text-slate-500 font-normal">
                   ({totalCount})
                 </span>
+              )}
+              {listLoading && (
+                <Spinner className="w-5 h-5 text-indigo-600" />
               )}
             </h3>
 
@@ -474,8 +486,10 @@ export default function Dashboard() {
                         {task.status !== "Completed" && (
                           <button
                             onClick={() => markComplete(task.id)}
-                            className="flex-1 min-w-fit rounded-lg bg-emerald-50 text-emerald-600 hover:bg-emerald-100 px-3 py-2 text-sm font-medium transition"
+                            disabled={completingId === task.id}
+                            className="flex flex-1 min-w-fit items-center justify-center gap-1.5 rounded-lg bg-emerald-50 text-emerald-600 hover:bg-emerald-100 px-3 py-2 text-sm font-medium transition disabled:opacity-60"
                           >
+                            {completingId === task.id && <Spinner className="w-3.5 h-3.5" />}
                             Complete
                           </button>
                         )}
@@ -489,8 +503,10 @@ export default function Dashboard() {
 
                         <button
                           onClick={() => deleteTask(task.id)}
-                          className="flex-1 min-w-fit rounded-lg bg-red-50 text-red-600 hover:bg-red-100 px-3 py-2 text-sm font-medium transition"
+                          disabled={deletingId === task.id}
+                          className="flex flex-1 min-w-fit items-center justify-center gap-1.5 rounded-lg bg-red-50 text-red-600 hover:bg-red-100 px-3 py-2 text-sm font-medium transition disabled:opacity-60"
                         >
+                          {deletingId === task.id && <Spinner className="w-3.5 h-3.5" />}
                           Delete
                         </button>
                       </div>
