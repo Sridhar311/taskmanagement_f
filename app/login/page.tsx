@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import {api} from "@/services/api";
 import { useAuthStore } from "@/store/authStore";
 import Spinner from "@/components/Spinner";
+import ThemeToggle from "@/components/ThemeToggle";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -43,41 +44,44 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-slate-50 px-4 py-12">
-      <div className="max-w-md w-full bg-white border border-slate-200 shadow-xl rounded-3xl overflow-hidden">
+    <div className="min-h-screen flex items-center justify-center bg-slate-50 dark:bg-slate-900 px-4 py-12">
+      <div className="absolute top-4 right-4">
+        <ThemeToggle />
+      </div>
+      <div className="max-w-md w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-xl rounded-3xl overflow-hidden">
         <div className="p-8 sm:p-10">
           <div className="text-center mb-8">
             <p className="text-sm font-semibold text-indigo-600 uppercase tracking-[0.3em]">
               Task Management
             </p>
-            <h1 className="mt-4 text-3xl font-semibold text-slate-900">
+            <h1 className="mt-4 text-3xl font-semibold text-slate-900 dark:text-white">
               Welcome back
             </h1>
-            <p className="mt-2 text-sm text-slate-500">
+            <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">
               Sign in to access your task dashboard and stay productive.
             </p>
           </div>
 
           <div className="space-y-4">
             <label className="block">
-              <span className="text-sm font-medium text-slate-700">Email</span>
+              <span className="text-sm font-medium text-slate-700 dark:text-slate-300">Email</span>
               <input
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="mt-2 block w-full rounded-2xl border border-slate-300 bg-slate-50 px-4 py-3 text-slate-900 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-100"
+                className="mt-2 block w-full rounded-2xl border border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-700 px-4 py-3 text-slate-900 dark:text-white focus:border-indigo-500 dark:focus:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-100 dark:focus:ring-indigo-900"
                 placeholder="you@example.com"
               />
             </label>
 
             <label className="block">
-              <span className="text-sm font-medium text-slate-700">Password</span>
+              <span className="text-sm font-medium text-slate-700 dark:text-slate-300">Password</span>
               <div className="relative">
                 <input
                   type={showPassword ? "text" : "password"}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="mt-2 block w-full rounded-2xl border border-slate-300 bg-slate-50 px-4 py-3 pr-12 text-slate-900 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-100"
+                  className="mt-2 block w-full rounded-2xl border border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-700 px-4 py-3 pr-12 text-slate-900 dark:text-white focus:border-indigo-500 dark:focus:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-100 dark:focus:ring-indigo-900"
                   placeholder="Enter your password"
                 />
                 <button
@@ -101,7 +105,7 @@ export default function LoginPage() {
             </label>
 
             {error && (
-              <div className="rounded-xl bg-red-50 border border-red-200 p-3 text-sm text-red-700">
+              <div className="rounded-xl bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-800 p-3 text-sm text-red-700 dark:text-red-200">
                 {error}
               </div>
             )}
@@ -116,7 +120,7 @@ export default function LoginPage() {
             </button>
           </div>
 
-          <div className="mt-6 text-center text-sm text-slate-500">
+          <div className="mt-6 text-center text-sm text-slate-500 dark:text-slate-400">
             Don&apos;t have an account?{' '}
             <button
               onClick={() => router.push('/register')}

@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { api } from "@/services/api";
 import Spinner from "@/components/Spinner";
+import ThemeToggle from "@/components/ThemeToggle";
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -55,52 +56,55 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-slate-50 px-4 py-12">
-      <div className="max-w-md w-full bg-white border border-slate-200 shadow-xl rounded-3xl overflow-hidden">
+    <div className="min-h-screen flex items-center justify-center bg-slate-50 dark:bg-slate-900 px-4 py-12">
+      <div className="absolute top-4 right-4">
+        <ThemeToggle />
+      </div>
+      <div className="max-w-md w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-xl rounded-3xl overflow-hidden">
         <div className="p-8 sm:p-10">
           <div className="text-center mb-8">
             <p className="text-sm font-semibold text-green-600 uppercase tracking-[0.3em]">
               Create your account
             </p>
-            <h1 className="mt-4 text-3xl font-semibold text-slate-900">
+            <h1 className="mt-4 text-3xl font-semibold text-slate-900 dark:text-white">
               Join the task flow
             </h1>
-            <p className="mt-2 text-sm text-slate-500">
+            <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">
               Register and start managing tasks with clarity and speed.
             </p>
           </div>
 
           <div className="space-y-4">
             <label className="block">
-              <span className="text-sm font-medium text-slate-700">Full name</span>
+              <span className="text-sm font-medium text-slate-700 dark:text-slate-300">Full name</span>
               <input
                 type="text"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                className="mt-2 block w-full rounded-2xl border border-slate-300 bg-slate-50 px-4 py-3 text-slate-900 focus:border-green-500 focus:outline-none focus:ring-2 focus:ring-green-100"
+                className="mt-2 block w-full rounded-2xl border border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-700 px-4 py-3 text-slate-900 dark:text-white focus:border-green-500 dark:focus:border-green-400 focus:outline-none focus:ring-2 focus:ring-green-100 dark:focus:ring-green-900"
                 placeholder="Your full name"
               />
             </label>
 
             <label className="block">
-              <span className="text-sm font-medium text-slate-700">Email</span>
+              <span className="text-sm font-medium text-slate-700 dark:text-slate-300">Email</span>
               <input
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="mt-2 block w-full rounded-2xl border border-slate-300 bg-slate-50 px-4 py-3 text-slate-900 focus:border-green-500 focus:outline-none focus:ring-2 focus:ring-green-100"
+                className="mt-2 block w-full rounded-2xl border border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-700 px-4 py-3 text-slate-900 dark:text-white focus:border-green-500 dark:focus:border-green-400 focus:outline-none focus:ring-2 focus:ring-green-100 dark:focus:ring-green-900"
                 placeholder="you@example.com"
               />
             </label>
 
             <label className="block">
-              <span className="text-sm font-medium text-slate-700">Password</span>
+              <span className="text-sm font-medium text-slate-700 dark:text-slate-300">Password</span>
               <div className="relative">
                 <input
                   type={showPassword ? "text" : "password"}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="mt-2 block w-full rounded-2xl border border-slate-300 bg-slate-50 px-4 py-3 pr-12 text-slate-900 focus:border-green-500 focus:outline-none focus:ring-2 focus:ring-green-100"
+                  className="mt-2 block w-full rounded-2xl border border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-700 px-4 py-3 pr-12 text-slate-900 dark:text-white focus:border-green-500 dark:focus:border-green-400 focus:outline-none focus:ring-2 focus:ring-green-100 dark:focus:ring-green-900"
                   placeholder="Create a strong password"
                 />
                 <button
@@ -124,24 +128,24 @@ export default function RegisterPage() {
             </label>
 
             <label className="block">
-              <span className="text-sm font-medium text-slate-700">Confirm password</span>
+              <span className="text-sm font-medium text-slate-700 dark:text-slate-300">Confirm password</span>
               <input
                 type={showPassword ? "text" : "password"}
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
-                className="mt-2 block w-full rounded-2xl border border-slate-300 bg-slate-50 px-4 py-3 text-slate-900 focus:border-green-500 focus:outline-none focus:ring-2 focus:ring-green-100"
+                className="mt-2 block w-full rounded-2xl border border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-700 px-4 py-3 text-slate-900 dark:text-white focus:border-green-500 dark:focus:border-green-400 focus:outline-none focus:ring-2 focus:ring-green-100 dark:focus:ring-green-900"
                 placeholder="Re-enter your password"
               />
             </label>
 
             {error && (
-              <div className="rounded-xl bg-red-50 border border-red-200 p-3 text-sm text-red-700">
+              <div className="rounded-xl bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-800 p-3 text-sm text-red-700 dark:text-red-200">
                 {error}
               </div>
             )}
 
             {success && (
-              <div className="flex items-center gap-2 rounded-xl bg-emerald-50 border border-emerald-200 p-3 text-sm text-emerald-700">
+              <div className="flex items-center gap-2 rounded-xl bg-emerald-50 dark:bg-emerald-900/30 border border-emerald-200 dark:border-emerald-800 p-3 text-sm text-emerald-700 dark:text-emerald-200">
                 <Spinner className="w-4 h-4" />
                 {success}
               </div>
@@ -157,11 +161,11 @@ export default function RegisterPage() {
             </button>
           </div>
 
-          <div className="mt-6 text-center text-sm text-slate-500">
+          <div className="mt-6 text-center text-sm text-slate-500 dark:text-slate-400">
             Already have an account?{' '}
             <button
               onClick={() => router.push('/login')}
-              className="font-semibold text-green-600 hover:text-green-700"
+              className="font-semibold text-green-600 hover:text-green-700 dark:text-green-200"
             >
               Sign in
             </button>
