@@ -413,7 +413,7 @@ export default function Dashboard() {
             </h3>
 
             {tasks.length === 0 ? (
-              <div className="bg-white border border-slate-200 rounded-3xl shadow-sm p-12 text-center">
+              <div className="bg-white dark:bg-slate-800 border border-slate-200 rounded-3xl shadow-sm p-8 mb-8">
                 <svg
                   className="w-16 h-16 mx-auto text-slate-300 mb-4"
                   fill="none"
